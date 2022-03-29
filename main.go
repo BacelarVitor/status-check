@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"time"
 )
 
 func main() {
-	start := time.Now()
 
 	links := []string{
 		"https://www.google.com",
@@ -23,24 +21,19 @@ func main() {
 		go checkLink(link, c)
 	}
 
-	for i := 0; i < len(links); i++ {
-		fmt.Println(<- c)
+	for {
+		go checkLink(<-c, c)
 	}
-	
-	elapsed := time.Since(start)
-	fmt.Println()
-	fmt.Println()
-	fmt.Println(elapsed)
 }
 
 func checkLink(link string, c chan string) {
 	_, err := http.Get(link)
 	if err != nil {
 		fmt.Println(link, "might be down!")
-		c <- "Might be down, I think"
+		c <- link
 		return
 	}
 
 	fmt.Println(link, "is up!")
-	c <- "Yep is Up"
+	c <- link
 }
